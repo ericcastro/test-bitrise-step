@@ -57,7 +57,7 @@ inputs:
       summary: Data Theorem Upload API Key
       description: |
         Instruction to retrieve your upload API key:
-        [https://datatheorem.atlassian.net/servicedesk/customer/portal/1/article/557063]
+        [https://www.securetheorem.com/management/help/7bbdcadc-5921-4b69-9c37-5512e8f2b47b]
       is_expand: true
       is_required: true
       is_sensitive: true
@@ -72,3 +72,29 @@ inputs:
       is_required: false
       skip_if_empty: true
       value_options: []
+  - dt_results_api_key: ""
+    opts:
+      title: Data Theorem Results API Key
+      summary: Data Theorem Results API Key
+      description: |
+        Instruction to retrieve your results API key:
+        [https://www.securetheorem.com/management/help/7bbdcadc-5921-4b69-9c37-5512e8f2b47b]
+      is_expand: true
+      is_required: false
+      is_sensitive: true
+      value_options: []
+  - BLOCK_ON_SEVERITY: ""
+    opts:
+      title: Block on severity
+      summary: Block the build if security issues of this severity or higher are found
+      description: |
+        If set, the step will wait for the scan to complete and fail the build if any
+        security issues of the given severity or higher are found.
+        Possible values: LOW, MEDIUM, HIGH
+      is_expand: true
+      is_required: false
+      skip_if_empty: true
+      value_options:
+        - LOW
+        - MEDIUM
+        - HIGH

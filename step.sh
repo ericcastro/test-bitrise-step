@@ -29,7 +29,7 @@ get_security_findings() {
     read -r -a severity <<< "${@:2}"
 
     curl                                                       \
-        "${severity[@]/#/--url-query }"                        \
+        "${severity[@]/#/--url-query severity=}"               \
         --header "Authorization: APIKey ${dt_results_api_key}" \
         --output "${temp}/issues"                              \
         --request GET                                          \
