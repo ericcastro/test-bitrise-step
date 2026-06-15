@@ -103,43 +103,46 @@ perform_block_on_severity() {
 
     # Get security issues
 
-    http_status=$(get_security_findings "${1}" "${@:3}")
+    for severity in "${severity[@]}"
+    do
+        http_status=$(get_security_findings "${1}" "${severity}")
 
-    # If the previous request failed, show an error on stderr, and fail.
+        # If the previous request failed, show an error on stderr, and fail.
 
-    case "${http_status}" in
-        '200')
-            issues_count=$(
-                jq < "${temp}/issues" \
-                    --raw-output      \
-                    '.pagination_information.total_count'
-            )
-            issues_found=$(
-                jq < "${temp}/issues" \
-                    --raw-output      \
-                    '.security_findings'
-            )
-        ;;
-        *)
-            printf 'Failure while getting security findings\n' >&2
-            printf 'HTTP status was: %s\n' "${http_status}" >&2
-            printf 'HTTP response was:\n' >&2
-            cat "${temp}/issues" >&2
-            return 1
-        ;;
-    esac
+        case "${http_status}" in
+            '200')
+                issues_count=$(
+                    jq < "${temp}/issues" \
+                        --raw-output      \
+                        '.pagination_information.total_count'
+                )
+                issues_found=$(
+                    jq < "${temp}/issues" \
+                        --raw-output      \
+                        '.security_findings'
+                )
+            ;;
+            *)
+                printf 'Failure while getting security findings\n' >&2
+                printf 'HTTP status was: %s\n' "${http_status}" >&2
+                printf 'HTTP response was:\n' >&2
+                cat "${temp}/issues" >&2
+                return 1
+            ;;
+        esac
 
-    # Check security issues
+        # Check security issues
 
-    case "${issues_count}" in
-        '0')
-            printf 'No security issues detected.\n'
-        ;;
-        *)
-            printf 'Security issues detected: %s\n' "${issues_found}"
-            return 1
-        ;;
-    esac
+        case "${issues_count}" in
+            '0')
+                printf 'No security issues detected.\n'
+            ;;
+            *)
+                printf 'Security issues detected: %s\n' "${issues_found}"
+                return 1
+            ;;
+        esac
+    done
 }
 
 perform_upload_app_build() {
@@ -250,11 +253,11 @@ case "${BLOCK_ON_SEVERITY}" in
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
     'MEDIUM')
-        severity=('MEDIUM' 'HIGH')
+        severity=('HIGH' 'MEDIUM')
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
     'LOW')
-        severity=('LOW' 'MEDIUM' 'HIGH')
+        severity=('HIGH' 'MEDIUM' 'LOW')
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
     '')
