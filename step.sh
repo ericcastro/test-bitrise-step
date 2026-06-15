@@ -26,10 +26,10 @@ get_security_findings() {
     #   - The output on stdout is the HTTP status (200 on success);
     #   - The output in temp/issues is the HTTP response body.
 
-    read -r -a severity <<< "${@:2}"
+    read -a severity -r <<< "${@:2}"
 
     curl                                                       \
-        "${severity[@]/#/--url-query severity=}"               \
+        ${severity[@]/#/--url-query severity=}                 \
         --header "Authorization: APIKey ${dt_results_api_key}" \
         --output "${temp}/issues"                              \
         --request GET                                          \
@@ -61,10 +61,10 @@ upload_app_build() {
     #   - The output on stdout is the HTTP status (200 on success);
     #   - The output in temp/upload is the HTTP response body.
 
-    read -r -a sourcemap <<< "${@:2}"
+    read -a sourcemap -r <<< "${@:2}"
 
     curl                                                      \
-        "${sourcemap[@]/#/--form sourcemap=@}"                \
+        ${sourcemap[@]/#/--form sourcemap=@}                  \
         --form "file=@${1}"                                   \
         --header "Authorization: APIKey ${dt_upload_api_key}" \
         --output "${temp}/upload"                             \
@@ -108,16 +108,16 @@ perform_block_on_severity() {
     # If the previous request failed, show an error on stderr, and fail.
 
     case "${http_status}" in
-        "200")
+        '200')
             issues_count=$(
                 jq < "${temp}/issues" \
                     --raw-output      \
-                    ".pagination_information.total_count"
+                    '.pagination_information.total_count'
             )
             issues_found=$(
                 jq < "${temp}/issues" \
                     --raw-output      \
-                    ".security_findings"
+                    '.security_findings'
             )
         ;;
         *)
@@ -132,7 +132,7 @@ perform_block_on_severity() {
     # Check security issues
 
     case "${issues_count}" in
-        "0")
+        '0')
             printf 'No security issues detected.\n'
         ;;
         *)
@@ -172,16 +172,16 @@ wait_for_scan_completion() {
     for _ in {0..60}
     do
         case $(get_scan_status "${1}" "${2}") in
-            "200")
+            '200')
                 scan_dynamic=$(
                     jq < "${temp}/status" \
                         --raw-output      \
-                        ".dynamic_scan.status"
+                        '.dynamic_scan.status'
                 )
                 scan_static=$(
                     jq < "${temp}/status" \
                         --raw-output      \
-                        ".static_scan.status"
+                        '.static_scan.status'
                 )
             ;;
             *)
@@ -190,11 +190,11 @@ wait_for_scan_completion() {
         esac
 
         case "${scan_dynamic}" in
-            "CANCELLED"|"FAILED")
+            'CANCELLED'|'FAILED')
                 printf 'Scan %s failed, skipping vulnerability check\n' "${2}" >&2
                 return 1
             ;;
-            "COMPLETED"|"SCAN_ATTEMPT_ERROR")
+            'COMPLETED'|'SCAN_ATTEMPT_ERROR')
                 printf 'Scan %s: Dynamic scans done\n' "${2}"
             ;;
             *)
@@ -204,11 +204,11 @@ wait_for_scan_completion() {
         esac
 
         case "${scan_static}" in
-            "CANCELLED"|"FAILED"|"SCAN_ATTEMPT_ERROR")
+            'CANCELLED'|'FAILED'|'SCAN_ATTEMPT_ERROR')
                 printf 'Scan %s failed, skipping vulnerability check\n' "${2}" >&2
                 return 1
             ;;
-            "COMPLETED")
+            'COMPLETED')
                 printf 'Scan %s: Static scans done\n' "${2}"
             ;;
             *)
@@ -231,9 +231,9 @@ http_status=$(perform_upload_app_build)
 # If the previous request failed, show an error on stderr, and fail.
 
 case "${http_status}" in
-    "200")
-        build_scan_id=$(jq ".scan_id" < "${temp}/upload")
-        mobile_app_id=$(jq ".mobile_app_id" < "${temp}/upload")
+    '200')
+        build_scan_id=$(jq '.scan_id' < "${temp}/upload")
+        mobile_app_id=$(jq '.mobile_app_id' < "${temp}/upload")
     ;;
     *)
         printf 'Failure while uploading the build\n' >&2
@@ -245,19 +245,19 @@ case "${http_status}" in
 esac
 
 case "${BLOCK_ON_SEVERITY}" in
-    "HIGH")
-        severity=("HIGH")
+    'HIGH')
+        severity=('HIGH')
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
-    "MEDIUM")
-        severity=("MEDIUM" "HIGH")
+    'MEDIUM')
+        severity=('MEDIUM' 'HIGH')
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
-    "LOW")
-        severity=("LOW" "MEDIUM" "HIGH")
+    'LOW')
+        severity=('LOW' 'MEDIUM' 'HIGH')
         perform_block_on_severity "${mobile_app_id}" "${build_scan_id}" "${severity[@]}"
     ;;
-    "")
+    '')
         printf 'BLOCK_ON_SEVERITY is not set. Skipping vulnerability check.\n'
     ;;
     *)
