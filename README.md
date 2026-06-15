@@ -1,8 +1,6 @@
 # Upload to Data Theorem
 
 This step uploads your pre-production mobile app binaries to Data Theorem for scanning.
-Optionally, it can wait for the scan to complete and block the build if security issues are found above a configurable severity threshold (`LOW`, `MEDIUM`, or `HIGH`).
-This requires a Data Theorem Results API Key in addition to the Upload API Key.
 
 ## How to use this Step
 
@@ -30,8 +28,6 @@ An example `.bitrise.secrets.yml` file:
 envs:
 - dt_upload_api_key: "your_api_key"
 - file_path: "/path/to/your/app.apk"
-- dt_results_api_key: "your_results_api_key"
-- BLOCK_ON_SEVERITY: "HIGH"
 ```
 
 ## How to create your own step
@@ -59,8 +55,6 @@ If you want to use your step in your project's `bitrise.yml`:
     inputs:
     - dt_upload_api_key: "$DT_UPLOAD_API_KEY"
     - file_path: "$BITRISE_APK_PATH"
-    - dt_results_api_key: "$DT_RESULTS_API_KEY"
-    - BLOCK_ON_SEVERITY: "HIGH"
 ```
 
 You can find more examples of step reference styles
