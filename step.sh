@@ -190,11 +190,11 @@ wait_for_scan_completion() {
         esac
 
         case "${scan_dynamic}" in
-            "CANCELLED"|"FAILED"|"SCAN_ATTEMPT_ERROR")
+            "CANCELLED"|"FAILED")
                 printf 'Scan %s failed, skipping vulnerability check\n' "${2}" >&2
                 return 1
             ;;
-            "COMPLETED")
+            "COMPLETED"|"SCAN_ATTEMPT_ERROR")
                 printf 'Scan %s: Dynamic scans done\n' "${2}"
             ;;
             *)
