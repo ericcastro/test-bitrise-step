@@ -11,11 +11,11 @@ get_scan_status() {
     #   - The output in temp/issues is the HTTP response body.
 
     curl                                                       \
-        --header="Authorization: APIKey ${dt_results_api_key}" \
-        --output="${temp}/status"                              \
-        --request=GET                                          \
+        --header "Authorization: APIKey ${dt_results_api_key}" \
+        --output "${temp}/status"                              \
+        --request GET                                          \
         --silent                                               \
-        --write-out='%{http_code}'                             \
+        --write-out '%{http_code}'                             \
         "https://api.securetheorem.com/apis/mobile_security/results/v2/mobile_apps/${1}/scans/${2}"
 }
 
@@ -29,14 +29,14 @@ get_security_findings() {
     read -r -a severity <<< "${@:2}"
 
     curl                                                       \
-        "${severity[@]/#/--url-query=}"                        \
-        --header="Authorization: APIKey ${dt_results_api_key}" \
-        --output="${temp}/issues"                              \
-        --request=GET                                          \
+        "${severity[@]/#/--url-query }"                        \
+        --header "Authorization: APIKey ${dt_results_api_key}" \
+        --output "${temp}/issues"                              \
+        --request GET                                          \
         --silent                                               \
-        --url-query="mobile_app_id=${1}"                       \
-        --url-query="status_group=OPEN"                        \
-        --write-out='%{http_code}'                             \
+        --url-query "mobile_app_id=${1}"                       \
+        --url-query "status_group=OPEN"                        \
+        --write-out '%{http_code}'                             \
         "https://api.securetheorem.com/apis/mobile_security/results/v2/security_findings"
 }
 
@@ -64,13 +64,13 @@ upload_app_build() {
     read -r -a sourcemap <<< "${@:2}"
 
     curl                                                      \
-        "${sourcemap[@]/#/--form=sourcemap=@}"                \
-        --form="file=@${1}"                                   \
-        --header="Authorization: APIKey ${dt_upload_api_key}" \
-        --output="${temp}/upload"                             \
-        --request=POST                                        \
+        "${sourcemap[@]/#/--form sourcemap=@}"                \
+        --form "file=@${1}"                                   \
+        --header "Authorization: APIKey ${dt_upload_api_key}" \
+        --output "${temp}/upload"                             \
+        --request POST                                        \
         --silent                                              \
-        --write-out='%{http_code}'                            \
+        --write-out '%{http_code}'                            \
         'https://prod-dopinder-v2.securetheorem.com/api/v1/upload/application/upload'
 }
 
